@@ -2,6 +2,17 @@
 
 PicGo Gitlab 上传插件
 
+## 命令行配置方式
+
+1. 安装 PicGo : `npm install -g picgo`
+2. 安装本插件 : `picgo add gitlab-files`
+3. 配置本插件 : `picgo config uploader`, 选择 `gitlab-files-uploader`, 按照下文配置
+4. 激活插件 : `picgo use`
+   1. `Use an uploader` -> `gitlab-files-uploader`
+   2. `Use a transformer` -> `path`
+   3. `Use plugins` 至少激活本插件
+5. 使用插件 : `picgo upload`
+
 ## 配置
 
 | 名称                   | 介绍                                        | 配置示例                                                     |
