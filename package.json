@@ -23,7 +23,7 @@
   "author": "dwxh",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^14.14.22",
+    "@types/node": "^12.12.21",
     "picgo": "^1.4.14"
   }
 }
