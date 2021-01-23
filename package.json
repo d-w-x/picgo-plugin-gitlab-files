@@ -1,0 +1,29 @@
+{
+  "name": "picgo-plugin-gitlab-files",
+  "version": "1.0.0",
+  "description": "An uploader for uploading to gitlab files",
+  "main": "dist/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p .",
+    "dev": "tsc -w -p .",
+    "patch": "npm version patch && git push origin master && git push origin --tags",
+    "minor": "npm version minor && git push origin master && git push origin --tags",
+    "major": "npm version major && git push origin master && git push origin --tags"
+  },
+  "keywords": [
+    "picgo",
+    "picgo-gui-plugin",
+    "picgo-plugin"
+  ],
+  "author": "dwxh",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^14.14.22",
+    "picgo": "^1.4.14"
+  }
+}
