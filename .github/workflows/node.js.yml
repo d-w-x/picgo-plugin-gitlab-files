@@ -1,0 +1,21 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ master ]
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2.3.4
+    - uses: actions/setup-node@v2.1.4
+      with:
+          node-version: 10
+    - run: npm install
+    - run: npm run build
+    - name: NPM Publish
+      uses: JS-DevTools/npm-publish@v1
+      with:
+          token: ${{ secrets.NPM_TOKEN }}
