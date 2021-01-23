@@ -12,26 +12,27 @@ PicGo Gitlab 上传插件
 | 文件名及其路径   | 文件名和路径,占位符见后文,是否以`/`开头均可 | `/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}` |
 | 上传者的邮箱     | 可以不存在,可以不属于自己                   | `test@example.com`                                           |
 | 上传者的用户名   | 可以不存在,可以不属于自己                   | `example`                                                    |
-| 提交git的消息    | 每次提交的message,占位符和文件相同          | `By PicGo gitlab files uploader at {year}-{month}-{day}`     |
+| 提交git的消息    | 每次提交的message                           | `By PicGo gitlab files uploader at {year}-{month}-{day}`     |
 | gitlab的token    | 获取方式见后文(PicGo会明文保存)             | `fw45d1z7sa6rz69KOsxq`                                       |
 
 ## 路径 Format
 
 路径配置可使用以下参数，使用示例：`/{year}/{month}/{fileName}`，输出示例：`/2020/01/imba97.png`
 
-| 名称         | 介绍          | 输出示例                         |
-| ------------ | ------------- | -------------------------------- |
-| year         | 当前年份      | 2021                             |
-| month        | 当前月份      | 01                               |
-| day          | 当前日期      | 14                               |
-| hour         | 当前小时      | 15                               |
-| minute       | 当前分钟      | 35                               |
-| second       | 当前秒数      | 36                               |
-| milliseconds | 当前毫秒数    | 452                              |
-| fileName     | 图片名称      | imba97                           |
-| hash16       | 图片 MD5 16位 | 68559cae1081d683                 |
-| hash32       | 图片 MD5 32位 | 68559cae1081d6836e09b043aa0b3af1 |
-| ext          | 图片后缀名    | png                              |
+| 名称         | 介绍                                      | 输出示例                         |
+| ------------ | ----------------------------------------- | -------------------------------- |
+| year         | 当前年份                                  | 2021                             |
+| month        | 当前月份                                  | 01                               |
+| day          | 当前日期                                  | 14                               |
+| hour         | 当前小时                                  | 15                               |
+| minute       | 当前分钟                                  | 35                               |
+| second       | 当前秒数                                  | 36                               |
+| milliseconds | 当前毫秒数                                | 452                              |
+| fileName     | 图片名称，如果是多图，message取前三个文件 | imba97                           |
+| =========    | **下列内容不可用于message**               | ==============                   |
+| hash16       | 图片 MD5 16位                             | 68559cae1081d683                 |
+| hash32       | 图片 MD5 32位                             | 68559cae1081d6836e09b043aa0b3af1 |
+| ext          | 图片后缀名                                | png                              |
 
 **注意**: 默认会向末尾自动增加文件后缀, `ext` 后缀用于路径,文件参数等使用
 
