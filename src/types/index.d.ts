@@ -10,7 +10,9 @@ interface GitlabFilesLoaderUserConfig {
     authorName: string
     commitMessage: string
     gitToken: string,
-    deleteRemote: boolean
+    deleteRemote: boolean,
+    deleteMessage: string,
+    deleteInform: boolean
 }
 
 /**
@@ -30,6 +32,7 @@ interface RemoveImageType {
     imgUrl: string,
     width?: number,
     height?: number,
+    newPath?:string,
     type: string,
     id: string
 }

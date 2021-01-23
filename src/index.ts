@@ -1,6 +1,12 @@
 import picgo from 'picgo'
-import {getProjectInfo, postMultiFiles, postSingleFile} from "./utils/gitlabApiCall";
-import {formatMessage, formatPath} from "./utils/pathUtils";
+import {
+    getProjectInfo,
+    removeMultiFiles,
+    removeSingleFile,
+    uploadMultiFiles,
+    uploadSingleFile
+} from "./utils/gitlabApiCall";
+import {formatMessage, formatPath, replaceSlash} from "./utils/pathUtils";
 
 const UPLOADER = 'gitlab-files-uploader'
 
@@ -20,7 +26,9 @@ export = (ctx: picgo) => {
                 authorName: '',
                 commitMessage: 'Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}',
                 gitToken: '',
-                deleteRemote: false
+                deleteRemote: false,
+                deleteMessage: "Delete {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}",
+                deleteInform: false
             }
         }
         return [
@@ -78,7 +86,7 @@ export = (ctx: picgo) => {
                 default: userConfig.commitMessage,
                 required: true,
                 message: 'Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}',
-                alias: '提交git的消息'
+                alias: '上传文件的Git Message'
             },
             {
                 name: 'gitToken',
@@ -92,9 +100,25 @@ export = (ctx: picgo) => {
                 name: 'deleteRemote',
                 type: 'input',
                 default: userConfig.deleteRemote,
-                required: false,
+                required: true,
                 message: 'false',
                 alias: '是否同步删除远程对象'
+            },
+            {
+                name: 'deleteMessage',
+                type: 'input',
+                default: userConfig.deleteMessage,
+                required: true,
+                message: 'Delete {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}',
+                alias: '删除文件的Git Message'
+            },
+            {
+                name: 'deleteInform',
+                type: 'input',
+                default: userConfig.deleteInform,
+                required: true,
+                message: 'false',
+                alias: '删除远程图片后是否通知'
             }
         ]
     }
@@ -109,10 +133,14 @@ export = (ctx: picgo) => {
         }
 
         const imgList = ctx.output;
+        imgList.forEach(img => {
+            img['newPath'] = formatPath(img, userConfig.fileName)
+        })
         const options = getProjectInfo(userConfig);
         const body = await ctx.Request.request(options);
         let resultPath = JSON.parse(body).web_url + "/-/raw/"
 
+        let uploadOptions
         if (imgList.length === 1) {
             let img = imgList[0];
             if (!img.base64Image) {
@@ -120,46 +148,65 @@ export = (ctx: picgo) => {
                 delete img.buffer
             }
 
-            const options = postSingleFile(userConfig,
-                formatPath(img, userConfig.fileName, true),
+            uploadOptions = uploadSingleFile(userConfig,
+                replaceSlash(img.newPath),
                 formatMessage(userConfig.commitMessage, img.fileName),
                 img.base64Image);
-            await ctx.Request.request(options).then(response => {
-                let imgUrl = `${resultPath + response.branch}/${response.file_path}`
-                img.url = imgUrl
-                img.imgUrl = imgUrl
 
-                delete img.base64Image
-            }).catch(err => {
-                ctx.log.error('gitlab 存储发生错误，请检查链接,项目id和Token是否正确')
-                ctx.log.error(err)
-                ctx.emit('notification', {
-                    title: 'gitlab 存储错误',
-                    body: '请检查链接,项目id和Token是否正确',
-                    text: ''
-                })
-            });
         } else {
-            const options = postMultiFiles(userConfig, imgList)
-            await ctx.Request.request(options).then(() => {
-                imgList.forEach(img => {
-                    let imgUrl = `${resultPath + userConfig.branch}/${img.newPath}`
-                    delete img.base64Image
-                    img.url = imgUrl
-                    img.imgUrl = imgUrl
-                })
-            }).catch(err => {
-                ctx.log.error('gitlab 存储发生错误，请检查链接,项目id和Token是否正确')
-                ctx.log.error(err)
-                ctx.emit('notification', {
-                    title: 'gitlab 存储错误',
-                    body: '请检查链接,项目id和Token是否正确',
-                    text: ''
-                })
-            });
+            uploadOptions = uploadMultiFiles(userConfig, imgList)
         }
 
+        await ctx.Request.request(uploadOptions).then(() => {
+            imgList.forEach(img => {
+                let imgUrl = `${resultPath + userConfig.branch}/${img.newPath}`
+                delete img.base64Image
+                img.url = imgUrl
+                img.imgUrl = imgUrl
+            })
+        }).catch(err => {
+            ctx.log.error('======Start Gitlab files Upload Error======')
+            ctx.log.error(err)
+            ctx.emit('notification', {
+                title: 'gitlab 存储错误',
+                body: '请检查配置是否正确,能否链接'
+            })
+            ctx.log.error('======End Gitlab files Error======')
+        });
+
         return ctx
+    }
+
+    const onRemove = async function (files: RemoveImageType[]) {
+        let userConfig: GitlabFilesLoaderUserConfig = ctx.getConfig('picBed.gitlab-files-uploader')
+        if (!userConfig) {
+            throw new Error("Can't find uploader config")
+        }
+        const rms = files.filter(each => each.type === UPLOADER)
+        if (rms.length === 0 || !userConfig.deleteRemote) {
+            return
+        }
+        let fail = false
+
+        let options
+        if (rms.length === 1) {
+            options = removeSingleFile(userConfig, replaceSlash(rms[0].newPath), formatMessage(userConfig.commitMessage, rms[0].fileName));
+        } else {
+            options = removeMultiFiles(userConfig, rms)
+        }
+
+        await ctx.Request.request(options).catch((err) => {
+            ctx.log.error('======Start Gitlab files Delete Error======')
+            ctx.log.error(err)
+            ctx.log.error('======End Gitlab Delete Error======')
+            fail = true
+        });
+        if (userConfig.deleteInform) {
+            ctx.emit('notification', {
+                title: '远程删除提示',
+                body: fail ? `删除远程图片失败` : '成功同步删除'
+            });
+        }
     }
 
     const register = () => {
@@ -168,7 +215,7 @@ export = (ctx: picgo) => {
             config,
             name: 'gitlab files 图片上传'
         })
-        // ctx.on('remove', onRemove)
+        ctx.on('remove', onRemove)
     }
 
     return {

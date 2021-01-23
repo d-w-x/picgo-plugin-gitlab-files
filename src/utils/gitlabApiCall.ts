@@ -1,5 +1,5 @@
 import {IImgInfo} from "picgo/dist/src/types";
-import {formatPath, formatMessage} from "./pathUtils";
+import {formatMessage} from "./pathUtils";
 
 /**
  * 使用 Gitlab Api 获取项目的信息
@@ -25,7 +25,7 @@ export function getProjectInfo(userConfig: GitlabFilesLoaderUserConfig) {
 /**
  * 使用 Gitlab Api 向服务器进行一次单文件提交
  */
-export function postSingleFile(userConfig: GitlabFilesLoaderUserConfig, filePath, commitMessage, base64Image: string) {
+export function uploadSingleFile(userConfig: GitlabFilesLoaderUserConfig, filePath: string, commitMessage: string, base64Image: string) {
     let url: string
     if (userConfig.gitUrl.endsWith("/")) {
         url = userConfig.gitUrl + "api/v4/projects/" + userConfig.projectId + "/repository/files/" + filePath;
@@ -54,22 +54,10 @@ export function postSingleFile(userConfig: GitlabFilesLoaderUserConfig, filePath
     }
 }
 
-
 /**
  * 使用 Gitlab Api 向服务器进行一次多文件提交
  */
-export function postMultiFiles(userConfig: GitlabFilesLoaderUserConfig, outputs: IImgInfo[]) {
-    let url: string
-    if (userConfig.gitUrl.endsWith("/")) {
-        url = userConfig.gitUrl + "api/v4/projects/" + userConfig.projectId + "/repository/commits"
-    } else {
-        url = userConfig.gitUrl + "/api/v4/projects/" + userConfig.projectId + "/repository/commits"
-    }
-
-    outputs.forEach(output => {
-        output['newPath'] = formatPath(output, userConfig.fileName, false)
-    })
-
+export function uploadMultiFiles(userConfig: GitlabFilesLoaderUserConfig, outputs: IImgInfo[]) {
     let actions = outputs.map(output => {
         if (!output.base64Image) {
             output.base64Image = output.buffer.toString('base64')
@@ -83,6 +71,68 @@ export function postMultiFiles(userConfig: GitlabFilesLoaderUserConfig, outputs:
         }
     })
 
+    return postMultiFiles(userConfig,
+        actions,
+        formatMessage(userConfig.commitMessage, `"${outputs/*.slice(0, 3)*/.map(output => output.fileName).join('" & "')}"`))
+}
+
+/**
+ * 使用 Gitlab Api 向服务器进行一次单文件删除
+ */
+export function removeSingleFile(userConfig: GitlabFilesLoaderUserConfig, filePath: string, deleteMessage: string) {
+    let url: string
+    if (userConfig.gitUrl.endsWith("/")) {
+        url = userConfig.gitUrl + "api/v4/projects/" + userConfig.projectId + "/repository/files/" + filePath;
+    } else {
+        url = userConfig.gitUrl + "/api/v4/projects/" + userConfig.projectId + "/repository/files/" + filePath;
+    }
+
+    return {
+        method: 'DELETE',
+        url: url,
+        headers: {
+            'PRIVATE-TOKEN': userConfig.gitToken,
+            Date: new Date().toUTCString(),
+            'Content-Type': 'application/json',
+            'User-Agent': 'PicGo'
+        },
+        body: {
+            branch: userConfig.branch,
+            author_email: userConfig.authorMail,
+            author_name: userConfig.authorName,
+            commit_message: deleteMessage,
+        },
+        json: true
+    }
+}
+
+/**
+ * 使用 Gitlab Api 向服务器进行一次多文件删除
+ */
+export function removeMultiFiles(userConfig: GitlabFilesLoaderUserConfig, files: RemoveImageType[]) {
+    let actions = files.map(file => {
+        return {
+            action: 'delete',
+            file_path: file.newPath
+        }
+    })
+
+    return postMultiFiles(userConfig,
+        actions,
+        formatMessage(userConfig.deleteMessage, `"${files/*.slice(0, 3)*/.map(output => output.fileName).join('" & "')}"`))
+}
+
+/**
+ * 使用 Gitlab Api 向服务器进行一次多文件提交,可以是增删改查的混合
+ */
+function postMultiFiles(userConfig: GitlabFilesLoaderUserConfig, actions, gitMessage: string) {
+    let url: string
+    if (userConfig.gitUrl.endsWith("/")) {
+        url = userConfig.gitUrl + "api/v4/projects/" + userConfig.projectId + "/repository/commits"
+    } else {
+        url = userConfig.gitUrl + "/api/v4/projects/" + userConfig.projectId + "/repository/commits"
+    }
+
     return {
         method: 'POST',
         url: url,
@@ -95,7 +145,7 @@ export function postMultiFiles(userConfig: GitlabFilesLoaderUserConfig, outputs:
         body: {
             id: userConfig.projectId,
             branch: userConfig.branch,
-            commit_message: formatMessage(userConfig.commitMessage, `"${outputs/*.slice(0, 3)*/.map(output => output.fileName).join('" & "')}"`),
+            commit_message: gitMessage,
             author_email: userConfig.authorMail,
             author_name: userConfig.authorName,
             actions: actions

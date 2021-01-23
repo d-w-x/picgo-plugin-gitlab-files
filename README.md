@@ -4,16 +4,19 @@ PicGo Gitlab 上传插件
 
 ## 配置
 
-| 名称             | 介绍                                        | 配置示例                                                     |
-| ---------------- | ------------------------------------------- | ------------------------------------------------------------ |
-| gitlab服务器地址 | 服务器地址,建议末尾不带`/`                  | `https://gitlab.com`                                         |
-| 项目id           | 在项目设置页面查看,后文介绍                 | `1254`                                                       |
-| 默认分支         | 注意可能为main，也可以为其他分支            | `master`                                                     |
-| 文件名及其路径   | 文件名和路径,占位符见后文,是否以`/`开头均可 | `/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}` |
-| 上传者的邮箱     | 可以不存在,可以不属于自己                   | `test@example.com`                                           |
-| 上传者的用户名   | 可以不存在,可以不属于自己                   | `example`                                                    |
-| 提交git的消息    | 每次提交的message                           | `By PicGo gitlab files uploader at {year}-{month}-{day}`     |
-| gitlab的token    | 获取方式见后文(PicGo会明文保存)             | `fw45d1z7sa6rz69KOsxq`                                       |
+| 名称                   | 介绍                                        | 配置示例                                                     |
+| ---------------------- | ------------------------------------------- | ------------------------------------------------------------ |
+| gitlab服务器地址       | 服务器地址,建议末尾不带`/`                  | `https://gitlab.com`                                         |
+| 项目id                 | 在项目设置页面查看,后文介绍                 | `1254`                                                       |
+| 默认分支               | 注意可能为main，也可以为其他分支            | `master`                                                     |
+| 文件名及其路径         | 文件名和路径,占位符见后文,是否以`/`开头均可 | `/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}` |
+| 上传者的邮箱           | 可以不存在,可以不属于自己                   | `test@example.com`                                           |
+| 上传者的用户名         | 可以不存在,可以不属于自己                   | `example`                                                    |
+| 上传文件的Message      |                                             | `Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}` |
+| gitlab的token          | 获取方式见后文(PicGo会明文保存)             | `fw45d1z7sa6rz69KOsxq`                                       |
+| 是否同步删除远程对象   | 本地删除文件后是否在Gitlab删除              | `false`                                                      |
+| 删除文件的Message      |                                             | `Delete {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}` |
+| 删除远程图片后是否通知 | 如果开启会有两个通知                        | `false`                                                      |
 
 ## 路径 Format
 
