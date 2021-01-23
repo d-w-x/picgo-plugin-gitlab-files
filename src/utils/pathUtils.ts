@@ -2,13 +2,16 @@ import {IImgInfo} from "picgo/dist/src/types";
 import crypto from "crypto";
 
 
+export function replaceSlash(oldPath: string) {
+    return oldPath.split('/').join('%2F')
+}
+
 /**
  * 路径替换
  * @param output 原始图片
  * @param originalPath 配置中的形式化路径
- * @param replaceSlash 是否替换/,如果是单文件,需要替换
  */
-export function formatPath(output: IImgInfo, originalPath: string, replaceSlash: boolean): string {
+export function formatPath(output: IImgInfo, originalPath: string): string {
     // 获取日期
     let date = new Date()
 
@@ -37,9 +40,6 @@ export function formatPath(output: IImgInfo, originalPath: string, replaceSlash:
     newPath = newPath.split('\\').join('/')
     if (newPath.startsWith("/")) {
         newPath = newPath.substring(1, newPath.length)
-    }
-    if (replaceSlash) {
-        newPath = newPath.split('/').join('%2F')
     }
     newPath = newPath + "." + formatData.ext
 
