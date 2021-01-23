@@ -41,11 +41,11 @@ PicGo Gitlab 上传插件
 
 在 Gitlab 中打开项目:
 
-<img src=".\picture\1.png" alt="打开项目" style="zoom:50%;" />
+<img src="./picture/1.png" alt="打开项目" style="zoom:50%;" />
 
 此处即为项目ID:
 
-<img src=".\picture\2.png" alt="项目ID查看" style="zoom:50%;" />
+<img src="./picture/2.png" alt="项目ID查看" style="zoom:50%;" />
 
 
 ## Gitlab Token 获取
@@ -56,11 +56,11 @@ PicGo Gitlab 上传插件
 
 1. 打开 Gitlab 侧栏,选择 设置-访问令牌
 
-    <img src=".\picture\3.png" alt="获取访问令牌" style="zoom:50%;" />
+    <img src="./picture/3.png" alt="获取访问令牌" style="zoom:50%;" />
 
 2. 在弹出页面选择:
 
-    <img src=".\picture\4.png" alt="选择访问令牌权限" style="zoom:50%;" />
+    <img src="./picture/4.png" alt="选择访问令牌权限" style="zoom:50%;" />
 
     - 名称随意设置
     - 如果不设置时间表示不过期
@@ -71,11 +71,11 @@ PicGo Gitlab 上传插件
 
 1. 点击左上角用户头像,选择设置：
 
-    <img src=".\picture\5.png" alt="打开用户界面" style="zoom:50%;" />
+    <img src="./picture/5.png" alt="打开用户界面" style="zoom:50%;" />
 
 2. 在打开的窗口选择访问令牌：
 
-    <img src=".\picture\6.png" alt="打开用户界面" style="zoom:50%;" />
+    <img src="./picture/6.png" alt="打开用户界面" style="zoom:50%;" />
     
     - 名称随意设置
     - 如果不设置时间表示不过期

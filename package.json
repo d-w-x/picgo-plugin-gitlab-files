@@ -1,12 +1,12 @@
 {
   "name": "picgo-plugin-gitlab-files",
-  "version": "1.0.0",
-  "description": "An uploader for uploading to gitlab files",
+  "version": "1.0.1",
+  "description": "Uploader for uploading to gitlab files",
   "main": "dist/index.js",
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "",
+  "homepage": "https://github.com/D-W-X/picgo-plugin-gitlab-files",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p .",
