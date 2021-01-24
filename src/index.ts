@@ -190,7 +190,7 @@ export = (ctx: picgo) => {
 
         let options
         if (rms.length === 1) {
-            options = removeSingleFile(userConfig, replaceSlash(rms[0].newPath), formatMessage(userConfig.commitMessage, rms[0].fileName));
+            options = removeSingleFile(userConfig, replaceSlash(rms[0].newPath), formatMessage(userConfig.deleteMessage, rms[0].fileName));
         } else {
             options = removeMultiFiles(userConfig, rms)
         }
