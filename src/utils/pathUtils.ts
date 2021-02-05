@@ -10,8 +10,9 @@ export function replaceSlash(oldPath: string) {
  * 路径替换
  * @param output 原始图片
  * @param originalPath 配置中的形式化路径
+ * @param escapeName 是否将文件名URL编码(单文件不需要)
  */
-export function formatPath(output: IImgInfo, originalPath: string): string {
+export function formatPath(output: IImgInfo, originalPath: string, escapeName: boolean): string {
     // 获取日期
     let date = new Date()
 
@@ -27,7 +28,7 @@ export function formatPath(output: IImgInfo, originalPath: string): string {
         milliseconds: `${date.getMilliseconds()}`,
 
         // 文件名
-        fileName: output.fileName.replace(output.extname, ''),
+        fileName: escapeName ? encodeURIComponent(output.fileName.replace(output.extname, '')) : output.fileName.replace(output.extname, ''),
         hash16: crypto.createHash('md5').update(output.base64Image ? output.base64Image : output.buffer.toString()).digest('hex').substr(0, 16),
         hash32: crypto.createHash('md5').update(output.base64Image ? output.base64Image : output.buffer.toString()).digest('hex'),
 

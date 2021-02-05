@@ -134,7 +134,7 @@ export = (ctx: picgo) => {
 
         const imgList = ctx.output;
         imgList.forEach(img => {
-            img['newPath'] = formatPath(img, userConfig.fileName)
+            img['newPath'] = formatPath(img, userConfig.fileName, imgList.length === 1)
         })
         const options = getProjectInfo(userConfig);
         const body = await ctx.Request.request(options);
