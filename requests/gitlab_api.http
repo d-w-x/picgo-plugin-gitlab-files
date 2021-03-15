@@ -1,0 +1,5 @@
+### GET request with environment variables
+GET {{host}}/api/v4/projects/{{projectId}}
+'PRIVATE-TOKEN': {{gitlabToken}},
+Accept: application/json
+

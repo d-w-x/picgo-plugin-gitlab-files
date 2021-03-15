@@ -2,17 +2,18 @@
  * 配置文件接口
  */
 interface GitlabFilesLoaderUserConfig {
-    gitUrl: string
-    projectId: number
-    branch: string
-    fileName: string
-    authorMail: string
-    authorName: string
-    commitMessage: string
+    gitUrl: string,
+    projectId: number,
+    branch: string,
     gitToken: string,
+    gitVersionUnderThirteen:boolean,
+    fileName: string,
+    commitMessage: string,
     deleteRemote: boolean,
     deleteMessage: string,
-    deleteInform: boolean
+    deleteInform: boolean,
+    authorMail: string,
+    authorName: string
 }
 
 /**

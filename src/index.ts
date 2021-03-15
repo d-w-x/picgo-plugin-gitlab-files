@@ -21,14 +21,15 @@ export = (ctx: picgo) => {
                 gitUrl: 'https://gitlab.com',
                 projectId: 0,
                 branch: 'master',
-                fileName: '/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}',
-                authorMail: '',
-                authorName: '',
-                commitMessage: 'Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}',
                 gitToken: '',
+                gitVersionUnderThirteen: false,
+                fileName: '/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}',
+                commitMessage: 'Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}',
                 deleteRemote: true,
                 deleteMessage: "Delete {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}",
-                deleteInform: false
+                deleteInform: false,
+                authorMail: '',
+                authorName: ''
             }
         }
         return [
@@ -57,12 +58,60 @@ export = (ctx: picgo) => {
                 alias: '默认分支,注意可能为main'
             },
             {
+                name: 'gitToken',
+                type: 'input',
+                default: userConfig.gitToken,
+                required: true,
+                message: 'Token of Gitlab',
+                alias: 'gitlab的token'
+            },
+            {
+                name: 'gitVersionUnderThirteen',
+                type: 'input',
+                default: userConfig.gitVersionUnderThirteen,
+                required: false,
+                message: 'If version of self-hosted Gitlab under 13, input `true`',
+                alias: '自托管的Gitlab版本是否低于13.0'
+            },
+            {
                 name: 'fileName',
                 type: 'input',
                 default: userConfig.fileName,
-                required: true,
+                required: false,
                 message: 'upload file name and path',
                 alias: '文件名及其路径'
+            },
+            {
+                name: 'commitMessage',
+                type: 'input',
+                default: userConfig.commitMessage,
+                required: false,
+                message: 'Git Message when upload new file(s)',
+                alias: '上传文件的Git Message'
+            },
+            {
+                name: 'deleteRemote',
+                type: 'input',
+                default: userConfig.deleteRemote,
+                required: false,
+                message: 'delete remote when you delete locally',
+                alias: '是否同步删除远程对象'
+            },
+            {
+                name: 'deleteMessage',
+                type: 'input',
+                default: userConfig.deleteMessage,
+                required: false,
+                message: 'Git Message when delete file(s)',
+                alias: '删除文件的Git Message'
+            },
+            {
+                name: 'deleteInform',
+                type: 'input',
+                default: userConfig.deleteInform,
+                required: false,
+                message: 'inform you when delete the remote file',
+                alias: '删除远程图片后是否通知'
             },
             {
                 name: 'authorMail',
@@ -79,46 +128,6 @@ export = (ctx: picgo) => {
                 required: false,
                 message: 'uploader name',
                 alias: '上传者的用户名'
-            },
-            {
-                name: 'commitMessage',
-                type: 'input',
-                default: userConfig.commitMessage,
-                required: true,
-                message: 'Git Message when upload new file(s)',
-                alias: '上传文件的Git Message'
-            },
-            {
-                name: 'gitToken',
-                type: 'input',
-                default: userConfig.gitToken,
-                required: true,
-                message: 'Token of Gitlab',
-                alias: 'gitlab的token'
-            },
-            {
-                name: 'deleteRemote',
-                type: 'input',
-                default: userConfig.deleteRemote,
-                required: true,
-                message: 'delete remote when you delete locally',
-                alias: '是否同步删除远程对象'
-            },
-            {
-                name: 'deleteMessage',
-                type: 'input',
-                default: userConfig.deleteMessage,
-                required: true,
-                message: 'Git Message when delete file(s)',
-                alias: '删除文件的Git Message'
-            },
-            {
-                name: 'deleteInform',
-                type: 'input',
-                default: userConfig.deleteInform,
-                required: true,
-                message: 'inform you when delete the remote file',
-                alias: '删除远程图片后是否通知'
             }
         ]
     }

@@ -8,3 +8,4 @@ tslint.json
 src/
 .github/
 picture/
+requests/
