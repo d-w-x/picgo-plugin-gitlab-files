@@ -147,7 +147,13 @@ export = (ctx: picgo) => {
         })
         const options = getProjectInfo(userConfig);
         const body = await ctx.Request.request(options);
-        let resultPath = JSON.parse(body).web_url + "/-/raw/"
+        let resultPath;
+        if (userConfig.gitVersionUnderThirteen) {
+            resultPath = JSON.parse(body).web_url + "/raw/"
+        } else {
+            resultPath = JSON.parse(body).web_url + "/-/raw/"
+        }
+
 
         let uploadOptions
         if (imgList.length === 1) {

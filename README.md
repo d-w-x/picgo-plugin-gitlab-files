@@ -2,6 +2,14 @@
 
 PicGo Gitlab 上传插件
 
+*在此版本中加入对自托管 Gitlab 版本低于 13.0 的兼容(?),高于此版本的用户无需修改,低于此版本的用户将第5个参数填写 `true`, 同时需要在 PicGo 中**手动修改**当前已经上传过的文件,后续文件不受影响.*
+
+<img src="https://github.com/D-W-X/picgo-plugin-gitlab-files/raw/master/picture/7.png" alt="选择修改的图片" style="zoom:50%;" />
+
+<img src="https://github.com/D-W-X/picgo-plugin-gitlab-files/raw/master/picture/8.png" alt="选择修改的图片" style="zoom:50%;" />
+
+
+
 ## 命令行配置方式
 
 1. 安装 PicGo : `npm install -g picgo`
@@ -15,19 +23,24 @@ PicGo Gitlab 上传插件
 
 ## 配置
 
-| 名称                   | 介绍                                                 | 配置示例                                                     |
-| ---------------------- | ---------------------------------------------------- | ------------------------------------------------------------ |
-| gitlab服务器地址       | 服务器地址,建议末尾不带`/`                           | `https://gitlab.com`                                         |
-| 项目id                 | 在项目设置页面查看,后文介绍                          | `1254`                                                       |
-| 默认分支               | 注意可能为main，也可以为其他分支                     | `master`                                                     |
-| gitlab的token          | 获取方式见后文(PicGo会明文保存)                      | `fw45d1z7sa6rz69KOsxq`                                       |
-| 文件名及其路径         | **可选**,文件名和路径,占位符见后文,是否以`/`开头均可 | `/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}` |
-| 上传文件的Message      | **可选**                                             | `Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}` |
-| 是否同步删除远程对象   | **可选**,本地删除文件后是否在Gitlab删除              | `false`                                                      |
-| 删除文件的Message      | **可选**,                                            | `Delete {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}` |
-| 删除远程图片后是否通知 | **可选**,如果开启会有两个通知                        | `false`                                                      |
-| 上传者的邮箱           | **可选**,建议不填写,可以不存在,可以不属于自己        | `test@example.com`                                           |
-| 上传者的用户名         | **可选**,建议不填写,可以不存在,可以不属于自己        | `example`                                                    |
+由于配置项过多, PicGo GUI 版本在 2.3 以前需要使用 `<tab>` 键手动切换, 参见 https://github.com/D-W-X/picgo-plugin-gitlab-files/issues/2
+
+经过尝试,最新版本已经加入的此页面滚轮的兼容,等待 PicGo GUI 新版本发布即可.
+
+| 名称                           | 介绍                                                         | 配置示例                                                     |
+| ------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| gitlab服务器地址               | 服务器地址,建议末尾不带`/`                                   | `https://gitlab.com`                                         |
+| 项目id                         | 在项目设置页面查看,后文介绍                                  | `1254`                                                       |
+| 默认分支                       | 注意可能为main，也可以为其他分支                             | `master`                                                     |
+| gitlab的token                  | 获取方式见后文(PicGo会明文保存)                              | `fw45d1z7sa6rz69KOsxq`                                       |
+| 自托管的Gitlab版本是否低于13.0 | **可选**,对于Gitlab版本低于13.0的情况,使用 `raw` ,否则使用 `-/raw` | `true`                                                       |
+| 文件名及其路径                 | **可选**,文件名和路径,占位符见后文,是否以`/`开头均可         | `/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}` |
+| 上传文件的Message              | **可选**                                                     | `Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}` |
+| 是否同步删除远程对象           | **可选**,本地删除文件后是否在Gitlab删除                      | `false`                                                      |
+| 删除文件的Message              | **可选**                                                     | `Delete {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}` |
+| 删除远程图片后是否通知         | **可选**,如果开启会有两个通知                                | `false`                                                      |
+| 上传者的邮箱                   | **可选**,建议不填写,可以不存在,可以不属于自己                | `test@example.com`                                           |
+| 上传者的用户名                 | **可选**,建议不填写,可以不存在,可以不属于自己                | `example`                                                    |
 
 ## 路径 Format
 
