@@ -11,26 +11,27 @@ import {formatMessage, formatPath, replaceSlash} from "./utils/pathUtils";
 const UPLOADER = 'gitlab-files-uploader'
 
 export = (ctx: picgo) => {
+    const defaultConfig = {
+        gitUrl: 'https://gitlab.com',
+        projectId: 0,
+        branch: 'master',
+        gitToken: '',
+        gitVersionUnderThirteen: false,
+        fileName: '/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}',
+        commitMessage: 'Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}',
+        deleteRemote: false,
+        deleteMessage: "Delete {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}",
+        deleteInform: false,
+        authorMail: '',
+        authorName: ''
+    }
     /**
      * 配置的常量
      */
     const config = (ctx: picgo) => {
         let userConfig = ctx.getConfig<GitlabFilesLoaderUserConfig>('picBed.gitlab-files-uploader')
         if (!userConfig) {
-            userConfig = {
-                gitUrl: 'https://gitlab.com',
-                projectId: 0,
-                branch: 'master',
-                gitToken: '',
-                gitVersionUnderThirteen: false,
-                fileName: '/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}',
-                commitMessage: 'Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}',
-                deleteRemote: true,
-                deleteMessage: "Delete {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}",
-                deleteInform: false,
-                authorMail: '',
-                authorName: ''
-            }
+            userConfig = defaultConfig
         }
         return [
             {
@@ -71,7 +72,7 @@ export = (ctx: picgo) => {
                 default: userConfig.gitVersionUnderThirteen,
                 required: false,
                 message: 'If version of self-hosted Gitlab under 13, input `true`',
-                alias: '自托管的Gitlab版本是否低于13.0'
+                alias: '自托管的Gitlab版本是否低于 13.0'
             },
             {
                 name: 'fileName',
@@ -95,7 +96,7 @@ export = (ctx: picgo) => {
                 default: userConfig.deleteRemote,
                 required: false,
                 message: 'delete remote when you delete locally',
-                alias: '是否同步删除远程对象'
+                alias: '是否同步删除远程对象，默认 false'
             },
             {
                 name: 'deleteMessage',
@@ -143,7 +144,7 @@ export = (ctx: picgo) => {
 
         const imgList = ctx.output;
         imgList.forEach(img => {
-            img['newPath'] = formatPath(img, userConfig.fileName, imgList.length === 1)
+            img['newPath'] = formatPath(img, userConfig.fileName||defaultConfig.fileName, imgList.length === 1)
         })
         const options = getProjectInfo(userConfig);
         const body = await ctx.Request.request(options);
@@ -165,7 +166,7 @@ export = (ctx: picgo) => {
 
             uploadOptions = uploadSingleFile(userConfig,
                 replaceSlash(img.newPath),
-                formatMessage(userConfig.commitMessage, img.fileName),
+                formatMessage(userConfig.commitMessage || defaultConfig.commitMessage, img.fileName),
                 img.base64Image);
 
         } else {
@@ -174,7 +175,7 @@ export = (ctx: picgo) => {
 
         await ctx.Request.request(uploadOptions).then(() => {
             imgList.forEach(img => {
-                let imgUrl = `${resultPath + userConfig.branch}/${img.newPath}`
+                let imgUrl = `${resultPath + userConfig.branch || defaultConfig.commitMessage}/${img.newPath}`
                 delete img.base64Image
                 img.url = imgUrl
                 img.imgUrl = imgUrl
@@ -205,7 +206,7 @@ export = (ctx: picgo) => {
 
         let options
         if (rms.length === 1) {
-            options = removeSingleFile(userConfig, replaceSlash(rms[0].newPath), formatMessage(userConfig.deleteMessage, rms[0].fileName));
+            options = removeSingleFile(userConfig, replaceSlash(rms[0].newPath), formatMessage(userConfig.deleteMessage || defaultConfig.deleteMessage, rms[0].fileName));
         } else {
             options = removeMultiFiles(userConfig, rms)
         }
