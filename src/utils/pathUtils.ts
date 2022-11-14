@@ -1,4 +1,4 @@
-import {IImgInfo} from "picgo/dist/src/types";
+import {IImgInfo} from "picgo";
 import crypto from "crypto";
 
 

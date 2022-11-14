@@ -1,6 +1,6 @@
 {
   "name": "picgo-plugin-gitlab-files",
-  "version": "1.1.6",
+  "version": "1.2.1",
   "description": "Uploader for uploading to gitlab files",
   "main": "dist/index.js",
   "publishConfig": {
@@ -24,6 +24,6 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^17.0.41",
-    "picgo": "^1.4.26"
+    "picgo": "^1.5.0"
   }
 }

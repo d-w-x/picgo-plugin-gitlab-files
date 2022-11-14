@@ -2,13 +2,8 @@
 
 PicGo Gitlab 上传插件
 
-*在此版本中加入对自托管 Gitlab 版本低于 13.0 的兼容(?),高于此版本的用户无需修改,低于此版本的用户将第5个参数填写 `true`, 同时需要在 PicGo 中**手动修改**当前已经上传过的文件,后续文件不受影响.*
-
-<img src="https://github.com/D-W-X/picgo-plugin-gitlab-files/raw/master/picture/7.png" alt="选择修改的图片" style="zoom:50%;" />
-
-<img src="https://github.com/D-W-X/picgo-plugin-gitlab-files/raw/master/picture/8.png" alt="选择修改的图片" style="zoom:50%;" />
-
-
+- **在此版本中使用了 picgo-core v1.5.0， 低于此版本的用户请不要升级，插件无法在低版本正常运行。**
+- **新版本没有在 Gitlab < v13.0 上进行充分测试，如果出现问题欢迎及时反馈。**
 
 ## 命令行配置方式
 
@@ -25,44 +20,43 @@ PicGo Gitlab 上传插件
 
 由于配置项过多, PicGo GUI 版本在 2.3 以前需要使用 `<tab>` 键手动切换, 参见 https://github.com/D-W-X/picgo-plugin-gitlab-files/issues/2
 
-经过尝试,最新版本已经加入的此页面滚轮的兼容,等待 PicGo GUI 新版本发布即可.
+PicGo GUI 新版本已经支持滚轮查看配置.
 
-| 名称                           | 介绍                                                         | 配置示例                                                     |
-| ------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| gitlab服务器地址               | 服务器地址,建议末尾不带`/`                                   | `https://gitlab.com`                                         |
-| 项目id                         | 在项目设置页面查看,后文介绍                                  | `1254`                                                       |
-| 默认分支                       | 注意可能为main，也可以为其他分支                             | `master`                                                     |
-| gitlab的token                  | 获取方式见后文(PicGo会明文保存)                              | `fw45d1z7sa6rz69KOsxq`                                       |
-| 自托管的Gitlab版本是否低于13.0 | **可选**,对于Gitlab版本低于13.0的情况,使用 `raw` ,否则使用 `-/raw` | `true`                                                       |
-| 文件名及其路径                 | **可选**,文件名和路径,占位符见后文,是否以`/`开头均可         | `/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}` |
-| 上传文件的Message              | **可选**                                                     | `Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}` |
-| 是否同步删除远程对象           | **可选**,本地删除文件后是否在Gitlab删除                      | `false`                                                      |
-| 删除文件的Message              | **可选**                                                     | `Delete {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}` |
-| 删除远程图片后是否通知         | **可选**,如果开启会有两个通知                                | `false`                                                      |
-| 上传者的邮箱                   | **可选**,建议不填写,可以不存在,可以不属于自己                | `test@example.com`                                           |
-| 上传者的用户名                 | **可选**,建议不填写,可以不存在,可以不属于自己                | `example`                                                    |
+| 名称                   | 介绍                                                | 配置示例                                                                       |
+|----------------------|---------------------------------------------------|----------------------------------------------------------------------------|
+| gitlab服务器地址          | 服务器地址,建议末尾不带`/`                                   | `https://gitlab.com`                                                       |
+| 项目id                 | 在项目设置页面查看,后文介绍                                    | `1254`                                                                     |
+| 默认分支                 | 注意可能为main，也可以为其他分支                                | `master`                                                                   |
+| gitlab的token         | 获取方式见后文(PicGo会明文保存)                               | `fw45d1z7sa6rz69KOsxq`                                                     |
+| 自托管的Gitlab版本是否低于13.0 | **可选**,对于Gitlab版本低于13.0的情况,使用 `raw` ,否则使用 `-/raw` | `true`                                                                     |
+| 文件名及其路径              | **可选**,文件名和路径,占位符见后文,是否以`/`开头均可                   | `/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}`       |
+| 上传文件的Message         | **可选**                                            | `Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}` |
+| 是否同步删除远程对象           | **可选**,本地删除文件后是否在Gitlab删除                         | `false`                                                                    |
+| 删除文件的Message         | **可选**                                            | `Delete {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}` |
+| 删除远程图片后是否通知          | **可选**,如果开启会有两个通知                                 | `false`                                                                    |
+| 上传者的邮箱               | **可选**,建议不填写,可以不存在,可以不属于自己                        | `test@example.com`                                                         |
+| 上传者的用户名              | **可选**,建议不填写,可以不存在,可以不属于自己                        | `example`                                                                  |
 
 ## 路径 Format
 
 路径配置可使用以下参数，使用示例：`/{year}/{month}/{fileName}`，输出示例：`/2020/01/imba97.png`
 
-| 名称         | 介绍                                      | 输出示例                         |
-| ------------ | ----------------------------------------- | -------------------------------- |
-| year         | 当前年份                                  | 2021                             |
-| month        | 当前月份                                  | 01                               |
-| day          | 当前日期                                  | 14                               |
-| hour         | 当前小时                                  | 15                               |
-| minute       | 当前分钟                                  | 35                               |
-| second       | 当前秒数                                  | 36                               |
-| milliseconds | 当前毫秒数                                | 452                              |
-| fileName     | 图片名称，如果是多图，message取前三个文件 | imba97                           |
-| =========    | **下列内容不可用于message**               | ==============                   |
-| hash16       | 图片 MD5 16位                             | 68559cae1081d683                 |
-| hash32       | 图片 MD5 32位                             | 68559cae1081d6836e09b043aa0b3af1 |
-| ext          | 图片后缀名                                | png                              |
+| 名称           | 介绍                      | 输出示例                             |
+|--------------|-------------------------|----------------------------------|
+| year         | 当前年份                    | 2021                             |
+| month        | 当前月份                    | 01                               |
+| day          | 当前日期                    | 14                               |
+| hour         | 当前小时                    | 15                               |
+| minute       | 当前分钟                    | 35                               |
+| second       | 当前秒数                    | 36                               |
+| milliseconds | 当前毫秒数                   | 452                              |
+| fileName     | 图片名称，如果是多图，message拼接文件名 | imba97                           |
+| =========    | **下列内容不可用于message**     | ==============                   |
+| hash16       | 图片 MD5 16位              | 68559cae1081d683                 |
+| hash32       | 图片 MD5 32位              | 68559cae1081d6836e09b043aa0b3af1 |
+| ext          | 图片后缀名                   | png                              |
 
 **注意**: 默认会向末尾自动增加文件后缀, `ext` 后缀用于路径,文件参数等使用
-
 
 
 ## 项目id获取示例
@@ -78,9 +72,9 @@ PicGo Gitlab 上传插件
 
 ## Gitlab Token 获取
 
-**注意**：Token值会被PicGo明文保存! 下面任何一种方式均可
+**注意**：Token值会被PicGo明文保存! 下面任何一种方式均可，推荐 `项目 Token`。
 
-### 项目Token
+### 项目 Token
 
 1. 打开 Gitlab 侧栏,选择 设置-访问令牌
 
@@ -95,7 +89,7 @@ PicGo Gitlab 上传插件
     - 范围仅选择第一项或者仅选择第四项
     - 该方法生成的令牌只有项目访问权限
 
-### 个人Token
+### 个人 Token
 
 1. 点击左上角用户头像,选择设置：
 

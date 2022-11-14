@@ -1,4 +1,5 @@
-import picgo from 'picgo'
+import {IFullResponse} from 'picgo'
+import {IPicGo, IPluginConfig, IOldReqOptionsWithFullResponse} from 'picgo'
 import {
     getProjectInfo,
     removeMultiFiles,
@@ -10,7 +11,7 @@ import {formatMessage, formatPath, replaceSlash} from "./utils/pathUtils";
 
 const UPLOADER = 'gitlab-files-uploader'
 
-export = (ctx: picgo) => {
+export = (ctx: IPicGo) => {
     const defaultConfig = {
         gitUrl: 'https://gitlab.com',
         projectId: 0,
@@ -25,22 +26,21 @@ export = (ctx: picgo) => {
         authorMail: '',
         authorName: ''
     }
-    /**
-     * 配置的常量
-     */
-    const config = (ctx: picgo) => {
+
+    const config = (ctx: IPicGo) => {
         let userConfig = ctx.getConfig<GitlabFilesLoaderUserConfig>('picBed.gitlab-files-uploader')
         if (!userConfig) {
             userConfig = defaultConfig
         }
-        return [
+
+        const pluginConfig: IPluginConfig[] = [
             {
                 name: 'gitUrl',
                 type: 'input',
-                default: userConfig.gitUrl,
                 required: true,
+                default: userConfig.gitUrl,
+                alias: 'gitlab 服务器地址',
                 message: 'Server of Gitlab',
-                alias: 'gitlab服务器地址'
             },
             {
                 name: 'projectId',
@@ -48,7 +48,7 @@ export = (ctx: picgo) => {
                 default: userConfig.projectId,
                 required: true,
                 message: 'project ID',
-                alias: '项目id，在项目设置页面查看'
+                alias: '项目 id，在项目设置页面查看'
             },
             {
                 name: 'branch',
@@ -56,7 +56,7 @@ export = (ctx: picgo) => {
                 default: userConfig.branch,
                 required: true,
                 message: 'upload branch,maybe "main" for some project',
-                alias: '默认分支,注意可能为main'
+                alias: '默认分支,注意可能为 main'
             },
             {
                 name: 'gitToken',
@@ -64,7 +64,7 @@ export = (ctx: picgo) => {
                 default: userConfig.gitToken,
                 required: true,
                 message: 'Token of Gitlab',
-                alias: 'gitlab的token'
+                alias: 'gitlab 的 token'
             },
             {
                 name: 'gitVersionUnderThirteen',
@@ -131,30 +131,52 @@ export = (ctx: picgo) => {
                 alias: '上传者的用户名'
             }
         ]
+        return pluginConfig
+    }
+
+    const formatConfig = (userConfig: GitlabFilesLoaderUserConfig) => {
+        return {
+            gitUrl: userConfig.gitUrl || 'https://gitlab.com',
+            projectId: userConfig.projectId || 0,
+            branch: userConfig.branch || 'master',
+            gitToken: userConfig.gitToken || '',
+            gitVersionUnderThirteen: userConfig.gitVersionUnderThirteen || false,
+            fileName: userConfig.fileName || '/pictures/{year}/{month}/{day}_{hour}_{minute}_{second}_{fileName}',
+            commitMessage: userConfig.commitMessage || 'Upload {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}',
+            deleteRemote: userConfig.deleteRemote || false,
+            deleteMessage: userConfig.deleteMessage || "Delete {fileName} By PicGo gitlab files uploader at {year}-{month}-{day}",
+            deleteInform: userConfig.deleteInform || false,
+            authorMail: userConfig.authorMail || '',
+            authorName: userConfig.authorName || ''
+        }
     }
 
     /**
-     * 核心方法
+     * 上传核心方法
      */
-    const handle = async (ctx: picgo) => {
-        let userConfig: GitlabFilesLoaderUserConfig = ctx.getConfig('picBed.gitlab-files-uploader')
+    const handle = async (ctx: IPicGo) => {
+        let userConfig: GitlabFilesLoaderUserConfig = ctx.getConfig<GitlabFilesLoaderUserConfig>('picBed.gitlab-files-uploader')
         if (!userConfig) {
-            throw new Error("Can't find uploader config")
+            throw new Error("Can't find gitlab uploader config")
         }
+        userConfig = formatConfig(userConfig)
 
         const imgList = ctx.output;
         imgList.forEach(img => {
-            img['newPath'] = formatPath(img, userConfig.fileName||defaultConfig.fileName, imgList.length === 1)
+            img['newPath'] = formatPath(img, userConfig.fileName, imgList.length === 1)
         })
         const options = getProjectInfo(userConfig);
-        const body = await ctx.Request.request(options);
-        let resultPath;
-        if (userConfig.gitVersionUnderThirteen) {
-            resultPath = JSON.parse(body).web_url + "/raw/"
-        } else {
-            resultPath = JSON.parse(body).web_url + "/-/raw/"
+        const resp: IFullResponse<{ web_url: string }, IOldReqOptionsWithFullResponse> = await ctx.request(options);
+        if (resp.statusCode !== 200) {
+            throw new Error('Get gitlab project info failed.')
         }
 
+        let resultPath;
+        if (userConfig.gitVersionUnderThirteen) {
+            resultPath = resp.body.web_url + "/raw/"
+        } else {
+            resultPath = resp.body.web_url + "/-/raw/"
+        }
 
         let uploadOptions
         if (imgList.length === 1) {
@@ -164,18 +186,19 @@ export = (ctx: picgo) => {
                 delete img.buffer
             }
 
-            uploadOptions = uploadSingleFile(userConfig,
+            uploadOptions = uploadSingleFile(
+                userConfig,
                 replaceSlash(img.newPath),
-                formatMessage(userConfig.commitMessage || defaultConfig.commitMessage, img.fileName),
-                img.base64Image);
-
+                formatMessage(userConfig.commitMessage, img.fileName),
+                img.base64Image
+            );
         } else {
             uploadOptions = uploadMultiFiles(userConfig, imgList)
         }
 
-        await ctx.Request.request(uploadOptions).then(() => {
+        await ctx.request(uploadOptions).then(() => {
             imgList.forEach(img => {
-                let imgUrl = `${resultPath + userConfig.branch || defaultConfig.commitMessage}/${img.newPath}`
+                let imgUrl = `${resultPath + userConfig.branch}/${img.newPath}`
                 delete img.base64Image
                 img.url = imgUrl
                 img.imgUrl = imgUrl
@@ -184,7 +207,7 @@ export = (ctx: picgo) => {
             ctx.log.error('======Start Gitlab files Upload Error======')
             ctx.log.error(err)
             ctx.emit('notification', {
-                title: 'gitlab 存储错误',
+                title: 'gitlab 上传错误',
                 body: '请检查配置是否正确,能否链接'
             })
             ctx.log.error('======End Gitlab files Error======')
@@ -193,11 +216,16 @@ export = (ctx: picgo) => {
         return ctx
     }
 
+    /**
+     * 删除核心方法
+     */
     const onRemove = async function (files: RemoveImageType[]) {
         let userConfig: GitlabFilesLoaderUserConfig = ctx.getConfig('picBed.gitlab-files-uploader')
         if (!userConfig) {
             throw new Error("Can't find uploader config")
         }
+        userConfig = formatConfig(userConfig)
+
         const rms = files.filter(each => each.type === UPLOADER)
         if (rms.length === 0 || !userConfig.deleteRemote) {
             return
@@ -206,12 +234,12 @@ export = (ctx: picgo) => {
 
         let options
         if (rms.length === 1) {
-            options = removeSingleFile(userConfig, replaceSlash(rms[0].newPath), formatMessage(userConfig.deleteMessage || defaultConfig.deleteMessage, rms[0].fileName));
+            options = removeSingleFile(userConfig, replaceSlash(rms[0].newPath), formatMessage(userConfig.deleteMessage, rms[0].fileName));
         } else {
             options = removeMultiFiles(userConfig, rms)
         }
 
-        await ctx.Request.request(options).catch((err) => {
+        await ctx.request(options).catch((err) => {
             ctx.log.error('======Start Gitlab files Delete Error======')
             ctx.log.error(err)
             ctx.log.error('======End Gitlab Delete Error======')
@@ -219,8 +247,8 @@ export = (ctx: picgo) => {
         });
         if (userConfig.deleteInform) {
             ctx.emit('notification', {
-                title: '远程删除提示',
-                body: fail ? `删除远程图片失败` : '成功同步删除'
+                title: '远程文件删除提示',
+                body: fail ? `删除远程图片失败。` : '成功同步删除远程文件。'
             });
         }
     }

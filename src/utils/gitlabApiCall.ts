@@ -1,10 +1,10 @@
-import {IImgInfo} from "picgo/dist/src/types";
+import {IImgInfo, IOldReqOptionsWithFullResponse} from "picgo";
 import {formatMessage} from "./pathUtils";
 
 /**
  * 使用 Gitlab Api 获取项目的信息
  */
-export function getProjectInfo(userConfig: GitlabFilesLoaderUserConfig) {
+export function getProjectInfo(userConfig: GitlabFilesLoaderUserConfig): IOldReqOptionsWithFullResponse {
     let url: string
     if (userConfig.gitUrl.endsWith("/")) {
         url = userConfig.gitUrl + "api/v4/projects/" + userConfig.projectId
@@ -13,6 +13,8 @@ export function getProjectInfo(userConfig: GitlabFilesLoaderUserConfig) {
     }
 
     return {
+        resolveWithFullResponse: true,
+        json: true,
         method: 'GET',
         url: url,
         headers: {
@@ -73,7 +75,7 @@ export function uploadMultiFiles(userConfig: GitlabFilesLoaderUserConfig, output
 
     return postMultiFiles(userConfig,
         actions,
-        formatMessage(userConfig.commitMessage, `"${outputs/*.slice(0, 3)*/.map(output => output.fileName).join('" & "')}"`))
+        formatMessage(userConfig.commitMessage, `"${outputs.map(output => output.fileName).join('" & "')}"`))
 }
 
 /**
@@ -119,7 +121,7 @@ export function removeMultiFiles(userConfig: GitlabFilesLoaderUserConfig, files:
 
     return postMultiFiles(userConfig,
         actions,
-        formatMessage(userConfig.deleteMessage, `"${files/*.slice(0, 3)*/.map(output => output.fileName).join('" & "')}"`))
+        formatMessage(userConfig.deleteMessage, `"${files.map(output => output.fileName).join('" & "')}"`))
 }
 
 /**
